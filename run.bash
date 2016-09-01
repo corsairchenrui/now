@@ -138,9 +138,11 @@ function get_inet_addr() {
 }
 
 function public_ip {
+    local ip=$host_ip
     # Try to take the public IP using AWS EC2's metadata API:
-    local ip=$(curl -s -L -m2 -f http://169.254.169.254/latest/meta-data/public-ipv4 || true)
-
+    if [[ "$ip" == "" || "$ip" == "not found" ]]; then
+        ip=$(curl -s -L -m2 -f http://169.254.169.254/latest/meta-data/public-ipv4 || true)
+    fi
     # Try to use DigitalOcean's metadata API as fallback:
     if [[ "$ip" == "" || "$ip" == "not found" ]]; then
         ip=$(curl -s -L -m2 -f http://169.254.169.254/metadata/v1/interfaces/public/0/ipv4/address || true)
